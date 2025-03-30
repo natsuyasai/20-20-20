@@ -92,12 +92,12 @@
             const countTime = document.getElementById("time").value;
             startStatusUpdate(countTime * 60);
             countdownTimer = setTimeout(() => {
-                updateTitle();
+                document.title = "★20-20-20";
                 sound("sine", 1);
                 const breakTime = document.getElementById("break").value;
                 startStatusUpdate(breakTime);
                 countdownTimer = setTimeout(() => {
-                    updateTitle();
+                    document.title = "★20-20-20";
                     sound("triangle", 1);
                     start();
                 }, breakTime * 1000);
@@ -117,8 +117,9 @@
                 }
                 const minutes = Math.floor(timeInSeconds / 60);
                 const seconds = timeInSeconds % 60;
-                document.getElementById('status').textContent =
-                    `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                const text = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                document.title = text;
+                document.getElementById('status').textContent = text;
 
                 timeInSeconds--;
             }, 1000);
@@ -126,13 +127,11 @@
 
         function stop() {
             clear();
-            console.log("Stopping the application...");
         }
 
         function restart() {
             clear();
             start();
-            console.log("Restarting the application...");
         }
 
         function clear() {
@@ -141,7 +140,7 @@
             clearInterval(statusTimer);
             statusTimer = null;
             document.getElementById('status').textContent = "00:00";
-            console.log("Clearing the application...");
+            document.title = "20-20-20";
         }
 
         function notifyUser(title, message) {
@@ -154,11 +153,6 @@
                     }
                 });
             }
-        }
-
-        function updateTitle() {
-            document.title = "★20-20-20";
-            setTimeout(() =>{ document.title = "20-20-20"; }, 3000);
         }
 
         function sound(type, sec) {
