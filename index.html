@@ -4,12 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>20-20-20</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="main.js" defer></script>
+    <style type="text/css">
+.main-container {
+  font-size: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: #f0f0f0;
+}
+
+.input-container {
+  display: grid;
+  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.button {
+  height: 40px;
+  border-radius: 4px;
+  border: thin solid #ccc;
+  background-color: #fff;
+  color: #000;
+  font-size: 20px;
+  cursor: pointer;
+  &:first-of-type {
+    background-color: #4caf50;
+    color: white;
+    margin-top: 24px;
+  }
+}
+
+.input {
+  height: 40px;
+  border-radius: 4px;
+  border: thin solid #ccc;
+  background-color: #fff;
+  color: #000;
+  font-size: 20px;
+  padding: 0 8px;
+}
+
+#status {
+  font-size: 80px;
+  text-align: center;
+  color: #000;
+  margin-top: 10px;
+}
+
+    </style>
 </head>
 <body class="main-container">
     <header>
-        
     </header>
     <main>
         <div class="input-container">
@@ -28,5 +77,114 @@
     <footer>
         
     </footer>
+    <script>
+    function main() {
+
+        let countdownTimer = null;
+        let statusTimer = null;
+
+
+        function start() {
+            startCountdown();
+        }
+
+        function startCountdown() {
+            const countTime = document.getElementById("time").value;
+            startStatusUpdate(countTime * 60);
+            countdownTimer = setTimeout(() => {
+                updateTitle();
+                sound("sine", 1);
+                const breakTime = document.getElementById("break").value;
+                startStatusUpdate(breakTime);
+                countdownTimer = setTimeout(() => {
+                    updateTitle();
+                    sound("triangle", 1);
+                    start();
+                }, breakTime * 1000);
+            }, countTime * 60 * 1000);
+        }
+
+        function startStatusUpdate(timeInSeconds) {
+            clearInterval(statusTimer);
+            statusTimer = null;
+            timeInSeconds--;
+            statusTimer = setInterval(() => {
+                if (timeInSeconds <= 0) {
+                    clearInterval(statusTimer);
+                    statusTimer = null;
+                    document.getElementById('status').textContent = "00:00";
+                    return;
+                }
+                const minutes = Math.floor(timeInSeconds / 60);
+                const seconds = timeInSeconds % 60;
+                document.getElementById('status').textContent =
+                    `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                timeInSeconds--;
+            }, 1000);
+        }
+
+        function stop() {
+            clear();
+            console.log("Stopping the application...");
+        }
+
+        function restart() {
+            clear();
+            start();
+            console.log("Restarting the application...");
+        }
+
+        function clear() {
+            clearTimeout(countdownTimer);
+            countdownTimer = null;
+            clearInterval(statusTimer);
+            statusTimer = null;
+            document.getElementById('status').textContent = "00:00";
+            console.log("Clearing the application...");
+        }
+
+        function notifyUser(title, message) {
+            if (Notification.permission === "granted") {
+                new Notification(title, { body: message });
+            } else {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        new Notification(title, { body: message });
+                    }
+                });
+            }
+        }
+
+        function updateTitle() {
+            document.title = "★20-20-20";
+            setTimeout(() =>{ document.title = "20-20-20"; }, 3000);
+        }
+
+        function sound(type, sec) {
+            const ctx = new AudioContext()
+            const osc = ctx.createOscillator()
+            osc.type = type
+            osc.connect(ctx.destination)
+            osc.start()
+            osc.stop(sec)
+        }
+
+        document.getElementById("start").addEventListener("click", start);
+        document.getElementById("stop").addEventListener("click", stop);
+        document.getElementById("restart").addEventListener("click", restart);
+        // if (Notification.permission !== "granted") {
+        //     Notification.requestPermission().then(permission => {
+        //         if (permission === "granted") {
+        //             console.log("Notification permission granted.");
+        //         } else {
+        //             console.log("Notification permission denied.");
+        //         }
+        //     });
+        // }
+    }
+
+    main();
+    </script>
 </body>
 </html>
